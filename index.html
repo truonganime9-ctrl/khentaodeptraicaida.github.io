@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xuân Bính Ngọ 2026 - Gửi Trọn Yêu Thương</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --red: #e63946; --pink-bg: #ffe5ec;
+            --sakura: #ffb7c5; --text-dark: #8d1b24;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background: var(--pink-bg);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        canvas { display: block; position: absolute; top: 0; left: 0; }
+
+        .ui-layer {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10; text-align: center; width: 90%;
+            transition: all 0.8s ease;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 30px; padding: 40px;
+            box-shadow: 0 20px 40px rgba(255, 183, 197, 0.4);
+            display: inline-block;
+        }
+
+        .sub-text {
+            color: var(--red); font-size: 1.5rem;
+            font-family: 'Dancing Script', cursive;
+            margin-bottom: 10px; font-weight: bold;
+        }
+
+        .year-container {
+            font-size: clamp(3.5rem, 15vw, 8rem);
+            font-weight: 900; display: flex;
+            justify-content: center; align-items: center;
+            color: var(--red); text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+        }
+
+        #digit-change { position: relative; display: inline-block; width: 0.7em; height: 1.2em; }
+        .num { position: absolute; top: 0; left: 0; width: 100%; transition: all 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .num-5 { opacity: 1; transform: scale(1); }
+        .num-6 { opacity: 0; color: var(--gold); transform: scale(0.5) translateY(30px); }
+        .leaped .num-5 { opacity: 0; transform: scale(1.5) rotate(15deg) translateY(-50px); filter: blur(5px); }
+        .leaped .num-6 { opacity: 1; transform: scale(1) translateY(0); filter: drop-shadow(0 0 15px var(--gold)); }
+
+        .btn-action {
+            padding: 15px 35px; background: var(--red); border: none; color: white;
+            border-radius: 50px; cursor: pointer; font-weight: bold;
+            font-size: 0.9rem; box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3);
+            transition: 0.3s; font-family: inherit;
+        }
+        .btn-action:hover { transform: translateY(-3px) scale(1.05); background: #c1121f; }
+
+        #btn-next { display: none; background: transparent; border: 2px solid var(--red); color: var(--red); margin-top: 20px; }
+
+        #wish-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--pink-bg); z-index: 100;
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; opacity: 0; transition: opacity 1s;
+        }
+
+        #typing-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem; color: var(--text-dark);
+            max-width: 85%; margin-top: 25px; line-height: 1.8; font-weight: 500;
+        }
+
+        .word-fade { display: inline-block; opacity: 0; transform: translateY(15px); animation: cleanAppear 0.6s ease forwards; }
+        @keyframes cleanAppear { to { opacity: 1; transform: translateY(0); } }
+
+        .search-container {
+            margin-top: 30px; display: none; align-items: center;
+            background: white; border-radius: 24px; padding: 5px 20px;
+            width: 80%; max-width: 500px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #dfe1e5; animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .search-input { flex: 1; border: none; outline: none; padding: 12px; font-size: 1rem; font-family: 'Montserrat', sans-serif; }
+        .btn-group { margin-top: 40px; display: flex; gap: 15px; opacity: 0; transition: opacity 1s ease; }
+        .heart { color: var(--red); font-size: 3rem; animation: beat 1s infinite; }
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="sakuraCanvas"></canvas>
+
+    <div class="ui-layer" id="main-ui">
+        <div class="glass-card" id="main-card">
+            <p class="sub-text" id="lunar-year">Xuân Ất Tỵ 2025</p>
+            <div class="year-container">
+                <span>202</span>
+                <div id="digit-change">
+                    <span class="num num-5">5</span>
+                    <span class="num num-6">6</span>
+                </div>
+            </div>
+            <button class="btn-action" id="btn-trigger" onclick="startLeap()">MỞ CỬA 2026</button>
+            <br>
+            <button class="btn-action" id="btn-next" onclick="showLoveMessage()">GỬI TRỌN YÊU THƯƠNG →</button>
+        </div>
+    </div>
+
+    <div id="wish-overlay">
+        <div class="heart">❤</div>
+        <div id="typing-text"></div>
+        
+        <div class="btn-group" id="wish-btns">
+            <button class="btn-action" style="background: var(--gold);" onclick="location.reload()">QUAY LẠI</button>
+            <button class="btn-action" onclick="openSearch()">GỬI LỜI</button>
+        </div>
+
+        <form id="my-form" action="https://formspree.io/f/xjgkvnak" method="POST" class="search-container">
+            <span style="color:#9aa0a6">🔍</span>
+            <input type="text" name="message" class="search-input" placeholder="..." required>
+            <button type="submit" class="btn-action" style="padding: 10px 20px; font-size: 0.8rem;">GỬI</button>
+        </form>
+        <p id="status" style="margin-top: 20px; color: var(--text-dark); display: none; font-weight: bold;"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const canvas = document.getElementById('sakuraCanvas');
+        const ctx = canvas.getContext('2d');
+        let petals = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Petal {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 7 + 5;
+                this.speed = Math.random() * 2 + 1;
+                this.angle = Math.random() * Math.PI * 2;
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                ctx.beginPath(); ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#ffb7c5"; ctx.fill(); ctx.restore();
+            }
+            update() { this.y += this.speed; if (this.y > canvas.height) this.y = -10; }
+        }
+        for (let i = 0; i < 60; i++) petals.push(new Petal());
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            petals.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function startLeap() {
+            document.getElementById('main-card').classList.add('leaped');
+            document.getElementById('btn-trigger').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('lunar-year').innerText = "Mừng Xuân Bính Ngọ 2026";
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                document.getElementById('btn-next').style.display = 'inline-block';
+            }, 1000);
+        }
+
+        function showLoveMessage() {
+            const overlay = document.getElementById('wish-overlay');
+            const mainUi = document.getElementById('main-ui');
+            const typingSpace = document.getElementById('typing-text');
+            const btnGroup = document.getElementById('wish-btns');
+            const message = "Mình chúc cô gái của mình luôn cutee xinh gái và luôn yêu thương chính bản thân mình hơn. Biết tự lo mỗi buổi sáng, biết làm việc nhà giúp cho bố mẹ. Hãy luôn hạnh phúc bên gia đình và tôn trọng những người thân trong gia đình. Phải luôn tiến bước trên con đường học tập, phấn đấu cho tương lai và đầu tư vào việc học thật tốt nhé. Nhớ nhé: việc học là việc cả đời, còn tình yêu bây giờ chưa giúp được gì nhiều đâu. Vậy nên Quỳnh Như yêu dấu hãy tiến bước và yêu thương bản thân mình nhiều lên nhé. Ah yêu em ❤️";
+            mainUi.style.opacity = '0';
+            setTimeout(() => {
+                mainUi.style.display = 'none'; overlay.style.display = 'flex';
+                setTimeout(() => { 
+                    overlay.style.opacity = '1'; typingSpace.innerHTML = "";
+                    const words = message.split(" ");
+                    words.forEach((word, index) => {
+                        const span = document.createElement('span');
+                        span.className = 'word-fade'; span.innerHTML = word + "&nbsp;";
+                        span.style.animationDelay = (index * 0.2) + "s";
+                        typingSpace.appendChild(span);
+                    });
+                    setTimeout(() => { btnGroup.style.opacity = '1'; }, 3000);
+                }, 100);
+            }, 800);
+        }
+
+        function openSearch() {
+            document.getElementById('wish-btns').style.display = 'none';
+            document.getElementById('my-form').style.display = 'flex';
+        }
+
+        var form = document.getElementById("my-form");
+        async function handleSubmit(event) {
+          event.preventDefault();
+          var status = document.getElementById("status");
+          var data = new FormData(event.target);
+          fetch(event.target.action, {
+            method: form.method,
+            body: data,
+            headers: { 'Accept': 'application/json' }
+          }).then(response => {
+            if (response.ok) {
+              status.innerHTML = "Cảm ơn Quỳnh như, mình đã nhận được rồi! ❤️";
+              status.style.display = "block";
+              form.style.display = "none";
+            } else {
+              status.innerHTML = "Lỗi! Bạn nhớ vào Gmail xác nhận Formspree đã nhé.";
+              status.style.display = "block";
+            }
+          });
+        }
+        form.addEventListener("submit", handleSubmit);
+    </script>
+</body>
+</html>
